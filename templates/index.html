@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+    <main class="container p-5">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Name</th>
+                    <th>Shares</th>
+                    <th>Price</th>
+                    <th>TOTAL</th>
+                </tr>
+            </thead>
+            <tfoot>
+                <tr>
+                    <td colspan="4"></td>
+                    <td><b>${{ grand_total }}</b></td>
+                </tr>
+            </tfoot>
+            <tbody>
+                <!-- for loop -->
+                {% for i in range(data_len) %}
+                <tr>
+                    <td>{{ data[i]["stock_symbol"].upper() }}</td>
+                    <td>{{ data[i]["name"] }}</td>
+                    <td>{{ data[i]["stocks_bought"] }}</td>
+                    <td>{{ current_price_data[i] }}</td>
+                    <td>${{ total_for_each_stock_data[i] }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td>CASH</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>${{ cash_remaining[0]["cash"] }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </main>
+{% endblock %}
