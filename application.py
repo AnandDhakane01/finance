@@ -1,4 +1,5 @@
 import os
+from re import I
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
@@ -15,6 +16,8 @@ app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 print(os.environ.get('API_KEY'))
 # Ensure responses aren't cached
+
+
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -33,7 +36,16 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-db = sqlite3.connect("finance.db")
+
+
+def make_dicts(cursor, row):
+    return dict((cursor.description[idx][0], value)
+                for idx, value in enumerate(row))
+
+
+db = sqlite3.connect("finance.db", check_same_thread=False)
+db.row_factory = make_dicts
+
 
 # Make sure API key is set
 if not os.environ.get('API_KEY'):
@@ -45,9 +57,9 @@ if not os.environ.get('API_KEY'):
 def index():
     """Show portfolio of stocks"""
     user_id = session["user_id"]
-    #query data to display
-    cash_remaining = db.execute("SELECT cash FROM users WHERE id = ?", user_id)
-    data = db.execute("SELECT * FROM stocks WHERE user_id = ?", user_id)
+    # query data to display
+    cash_remaining = db.execute("SELECT cash FROM users WHERE id = (?)", (user_id,)).fetchall()
+    data = db.execute("SELECT * FROM stocks WHERE user_id = (?)", (user_id,)).fetchall()
     current_price_data = []
     total_for_each_stock_data = []
     grand_total = 0
@@ -60,9 +72,9 @@ def index():
         grand_total += total
     data_len = len(data)
     grand_total += cash_remaining[0]["cash"]
-    grand_total =  round(grand_total, 2)
-    return render_template("index.html", cash_remaining=cash_remaining,data=data, total_for_each_stock_data=total_for_each_stock_data,
-    current_price_data=current_price_data, data_len=data_len, grand_total=grand_total)
+    grand_total = round(grand_total, 2)
+    return render_template("index.html", cash_remaining=cash_remaining, data=data, total_for_each_stock_data=total_for_each_stock_data,
+                           current_price_data=current_price_data, data_len=data_len, grand_total=grand_total)
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -78,28 +90,42 @@ def buy():
             return apology("Invalid amount of shares!!")
         elif look_up == None:
             return apology("Invalid Symbol!!")
-        #get username
+
+        # get username
         user_id = session["user_id"]
-        user_name = db.execute("SELECT username FROM users WHERE id = ?", user_id)
-        #get cash in the account
-        cash_remaining =  db.execute("SELECT cash FROM users WHERE username = ?", user_name[0]["username"])
-        #check if the user can afford the shares
+        user_name = db.execute("SELECT username FROM users WHERE id = (?)", (user_id,)).fetchall()
+
+        # get cash in the account
+        cash_remaining = db.execute("SELECT cash FROM users WHERE username = (?)", (user_name[0]["username"],)).fetchall()
+
+        print("")
+        print(user_name)
+        print(cash_remaining)
+        print(user_id)
+        print("")
+
+        # check if the user can afford the shares
         if cash_remaining[0]["cash"] < (shares * look_up["price"]):
             return apology("Insufficient Funds!!")
         else:
-            #check if that company stocks are already bought so to add up
-            #todo
+            # check if that company stocks are already bought so to add up
+            # todo
             if db.execute("SELECT * FROM stocks WHERE user_id = ? AND stock_symbol = ?", user_id, symbol):
                 #update and redirect
-                previous_stocks = db.execute("SELECT stocks_bought FROM stocks WHERE user_id = ? AND stock_symbol = ?", user_id, symbol)
+                previous_stocks = db.execute(
+                    "SELECT stocks_bought FROM stocks WHERE user_id = ? AND stock_symbol = ?", user_id, symbol)
                 total_stocks = previous_stocks[0]["stocks_bought"] + shares
 
-                db.execute("UPDATE stocks SET stocks_bought = ? WHERE user_id = ? AND stock_symbol = ?", total_stocks, user_id, symbol)
+                db.execute("UPDATE stocks SET stocks_bought = ? WHERE user_id = ? AND stock_symbol = ?",
+                           total_stocks, user_id, symbol)
                 return redirect("/")
 
-            db.execute("INSERT INTO stocks(user_id, stock_symbol, stocks_bought, name) VALUES (?, ?, ?, ?)", user_id, symbol, shares, look_up["name"]);
-            updated_balance = cash_remaining[0]["cash"] - (shares * look_up["price"])
-            db.execute("UPDATE users SET cash = (?) WHERE id = (?)", updated_balance, user_id)
+            db.execute("INSERT INTO stocks(user_id, stock_symbol, stocks_bought, name) VALUES (?, ?, ?, ?)",
+                       user_id, symbol, shares, look_up["name"])
+            updated_balance = cash_remaining[0]["cash"] - \
+                (shares * look_up["price"])
+            db.execute("UPDATE users SET cash = (?) WHERE id = (?)",
+                       updated_balance, user_id)
             return redirect("/")
 
     else:
@@ -132,7 +158,8 @@ def login():
             return apology("must provide password", 403)
 
         # Query database for username
-        rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        rows = db.execute("SELECT * FROM users WHERE username = (?)",
+                          (request.form.get("username"),)).fetchall()
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
@@ -165,9 +192,12 @@ def logout():
 def quote():
     """Get stock quote."""
     if request.method == "POST":
+
+        # lookup the stock price and display it to the user
         symbol = request.form.get("symbol")
         look_up = lookup(symbol)
-        return render_template("quoted.html", symbol = symbol, look_up = look_up)
+        return render_template("quoted.html", symbol=symbol, look_up=look_up)
+
     else:
         return render_template("quote.html")
 
@@ -176,20 +206,33 @@ def quote():
 def register():
     """Register user"""
     if request.method == "POST":
+        # Get username and password from the request
         username = request.form.get("username")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
 
+        # check if the username exists in the database
+        check_username = db.execute(
+            "SELECT username FROM users WHERE username = (?)", (username,)).fetchall()
+
+        # check if the user has entered all the values
         if (not username) or (not password) or (not confirm_password):
             return apology("Sorry!! You've got to fill the entire form!!")
+
+        # check if both the passwords entered are identical
         elif password != confirm_password:
             return apology("Your passwords don't match!!")
-        elif db.execute("SELECT username FROM users WHERE username = (?)", username):
+
+        # if the username is already taken
+        elif len(check_username) > 0:
+            print("in username already taken")
             return apology("Username already taken!!")
         else:
-
+            # insert the user details in the database
             hashed_password = generate_password_hash(password)
-            db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", username, hashed_password)
+            db.execute("INSERT INTO users (username, hash) VALUES (?, ?)",
+                       (username, hashed_password,))
+            db.commit()
         return redirect("/login")
     else:
         return render_template("register.html")
@@ -203,10 +246,11 @@ def sell():
     if request.method == "POST":
         pass
     else:
-        #get the list of stocks owned
+        # get the list of stocks owned
         stocks_owned_list = []
         number_of_stocks_owned = []
-        stocks_owned = db.execute("SELECT stock_symbol FROM stocks WHERE user_id = ?", user_id)
+        stocks_owned = db.execute(
+            "SELECT stock_symbol FROM stocks WHERE user_id = ?", user_id)
         for i in stocks_owned:
             stocks_owned_list.append(i["stock_symbol"].upper())
 
