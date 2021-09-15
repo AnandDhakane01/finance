@@ -36,12 +36,9 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database
-
-
 def make_dicts(cursor, row):
     return dict((cursor.description[idx][0], value)
                 for idx, value in enumerate(row))
-
 
 db = sqlite3.connect("finance.db", check_same_thread=False)
 db.row_factory = make_dicts
@@ -57,24 +54,31 @@ if not os.environ.get('API_KEY'):
 def index():
     """Show portfolio of stocks"""
     user_id = session["user_id"]
-    # query data to display
-    cash_remaining = db.execute("SELECT cash FROM users WHERE id = (?)", (user_id,)).fetchall()
-    data = db.execute("SELECT * FROM stocks WHERE user_id = (?)", (user_id,)).fetchall()
-    current_price_data = []
-    total_for_each_stock_data = []
+
+    # get cash remaining from the DB
+    cash_remaining = round(db.execute(
+        "SELECT cash FROM users WHERE id = (?)", (user_id,)).fetchall()[0]["cash"], 2)
+
+    # get stock transactions for this particular user from the DB
+    data = db.execute(
+        "SELECT * FROM stocks WHERE user_id = (?)", (user_id,)).fetchall()
+
+    new_data = {}
     grand_total = 0
+
     for i in data:
-        current_price = lookup(i["stock_symbol"])
-        current_price_data.append(current_price["price"])
-        total = int(i["stocks_bought"]) * current_price["price"]
-        total = round(total, 2)
-        total_for_each_stock_data.append(total)
-        grand_total += total
-    data_len = len(data)
-    grand_total += cash_remaining[0]["cash"]
-    grand_total = round(grand_total, 2)
-    return render_template("index.html", cash_remaining=cash_remaining, data=data, total_for_each_stock_data=total_for_each_stock_data,
-                           current_price_data=current_price_data, data_len=data_len, grand_total=grand_total)
+        current_price = round(lookup(i["stock_symbol"])["price"], 2)
+        if i["stock_symbol"] in new_data:
+            new_data[i["stock_symbol"]]["stocks_bought"] += i["stocks_bought"]
+            new_data[i["stock_symbol"]]["total"] += i["stocks_bought"] * current_price
+        else:
+            new_data[i["stock_symbol"]] = {"stocks_bought" : i["stocks_bought"], "name": i["name"], "total":current_price*i["stocks_bought"], "current_price" : current_price}
+
+    for i in new_data.values():
+        i["total"] = round(i["total"], 2)
+        grand_total += i["total"]
+    grand_total = round(grand_total + cash_remaining, 2)
+    return render_template("index.html", cash_remaining=cash_remaining, new_data=new_data, grand_total=grand_total)
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -82,50 +86,40 @@ def index():
 def buy():
     """Buy shares of stock"""
     if request.method == "POST":
+
+        # get data from user
         symbol = request.form.get("symbol")
         shares = int(request.form.get("shares"))
         look_up = lookup(symbol)
-
-        if (shares == None) or shares < 0:
+        if not shares or shares < 0:
             return apology("Invalid amount of shares!!")
-        elif look_up == None:
+        elif not look_up:
             return apology("Invalid Symbol!!")
 
-        # get username
+        # get user info
         user_id = session["user_id"]
-        user_name = db.execute("SELECT username FROM users WHERE id = (?)", (user_id,)).fetchall()
+        user_name = db.execute(
+            "SELECT username FROM users WHERE id = (?)", (user_id,)).fetchall()
 
         # get cash in the account
-        cash_remaining = db.execute("SELECT cash FROM users WHERE username = (?)", (user_name[0]["username"],)).fetchall()
-
-        print("")
-        print(user_name)
-        print(cash_remaining)
-        print(user_id)
-        print("")
+        cash_remaining = db.execute(
+            "SELECT cash FROM users WHERE username = (?)", (user_name[0]["username"],)).fetchall()
 
         # check if the user can afford the shares
         if cash_remaining[0]["cash"] < (shares * look_up["price"]):
             return apology("Insufficient Funds!!")
+
         else:
-            # check if that company stocks are already bought so to add up
-            # todo
-            if db.execute("SELECT * FROM stocks WHERE user_id = ? AND stock_symbol = ?", user_id, symbol):
-                #update and redirect
-                previous_stocks = db.execute(
-                    "SELECT stocks_bought FROM stocks WHERE user_id = ? AND stock_symbol = ?", user_id, symbol)
-                total_stocks = previous_stocks[0]["stocks_bought"] + shares
+            # register the stocks bought in the DB
+            db.execute("INSERT INTO stocks(user_id, stock_symbol, stocks_bought, bought_at, name) VALUES (?, ?, ?, ?, ?)",
+                        (user_id, symbol, shares, look_up["price"], look_up["name"]))
 
-                db.execute("UPDATE stocks SET stocks_bought = ? WHERE user_id = ? AND stock_symbol = ?",
-                           total_stocks, user_id, symbol)
-                return redirect("/")
-
-            db.execute("INSERT INTO stocks(user_id, stock_symbol, stocks_bought, name) VALUES (?, ?, ?, ?)",
-                       user_id, symbol, shares, look_up["name"])
+            # update the cash remaining after the transaction is done
             updated_balance = cash_remaining[0]["cash"] - \
                 (shares * look_up["price"])
             db.execute("UPDATE users SET cash = (?) WHERE id = (?)",
-                       updated_balance, user_id)
+                        (updated_balance, user_id))
+            db.commit()
             return redirect("/")
 
     else:
@@ -242,20 +236,7 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
-    user_id = session["user_id"]
-    if request.method == "POST":
-        pass
-    else:
-        # get the list of stocks owned
-        stocks_owned_list = []
-        number_of_stocks_owned = []
-        stocks_owned = db.execute(
-            "SELECT stock_symbol FROM stocks WHERE user_id = ?", user_id)
-        for i in stocks_owned:
-            stocks_owned_list.append(i["stock_symbol"].upper())
-
-        return render_template("sell.html", stocks_owned_list=stocks_owned_list)
-
+    return apology("TODO")
 
 def errorhandler(e):
     """Handle error"""
