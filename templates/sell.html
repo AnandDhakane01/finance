@@ -6,13 +6,13 @@ Sell
 {% endblock %}
 
 {% block main %}
-<form action="/buy" method="post">
+<form action="/sell" method="post">
     <div class="form-group">
-        <select class="form-control" name="symbol">
+        <select class="form-control" name="smbl">
             <option disabled selected value="">Symbol</option>
             <!-- for loop -->
-            {% for symbol in stocks_owned_list %}
-            <option value="{{ symbol }}">{{ symbol }}</option>
+            {% for i in stocks_owned_list %}
+            <option>{{ i["stock_symbol"] }}</option>
             {% endfor %}
         </select>
     </div>
@@ -21,7 +21,5 @@ Sell
     </div>
     <button class="btn btn-primary" type="submit">Sell</button>
 </form>
-
-{{ stocks_owned_list }}
 
 {% endblock %}

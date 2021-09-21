@@ -15,9 +15,9 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 print(os.environ.get('API_KEY'))
+
+
 # Ensure responses aren't cached
-
-
 @app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -35,14 +35,15 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+
 # Configure CS50 Library to use SQLite database
 def make_dicts(cursor, row):
     return dict((cursor.description[idx][0], value)
                 for idx, value in enumerate(row))
 
+
 db = sqlite3.connect("finance.db", check_same_thread=False)
 db.row_factory = make_dicts
-
 
 # Make sure API key is set
 if not os.environ.get('API_KEY'):
@@ -72,7 +73,8 @@ def index():
             new_data[i["stock_symbol"]]["stocks_bought"] += i["stocks_bought"]
             new_data[i["stock_symbol"]]["total"] += i["stocks_bought"] * current_price
         else:
-            new_data[i["stock_symbol"]] = {"stocks_bought" : i["stocks_bought"], "name": i["name"], "total":current_price*i["stocks_bought"], "current_price" : current_price}
+            new_data[i["stock_symbol"]] = {"stocks_bought": i["stocks_bought"], "name": i["name"],
+                                           "total": current_price * i["stocks_bought"], "current_price": current_price}
 
     for i in new_data.values():
         i["total"] = round(i["total"], 2)
@@ -81,6 +83,11 @@ def index():
     return render_template("index.html", cash_remaining=cash_remaining, new_data=new_data, grand_total=grand_total)
 
 
+# TODO
+# understand about session and where it is stored and how we access the user_id
+# redefine index accordingly (optimize)
+# get rid of redundant column in the db
+# understand postman so that I can use it in this project
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
@@ -110,15 +117,31 @@ def buy():
             return apology("Insufficient Funds!!")
 
         else:
-            # register the stocks bought in the DB
-            db.execute("INSERT INTO stocks(user_id, stock_symbol, stocks_bought, bought_at, name) VALUES (?, ?, ?, ?, ?)",
-                        (user_id, symbol, shares, look_up["price"], look_up["name"]))
+
+            #check if stock already exists in the stocks table
+            exists = db.execute("SELECT * FROM stocks WHERE user_id = (?) AND stock_symbol = (?)", [user_id, symbol]).fetchall()
+
+            # if the stock already exists int he users portfolio then add to it
+            if len(exists) > 0:
+                total_shares = exists[0]["stocks_bought"] + shares
+                db.execute("UPDATE stocks SET stocks_bought= (?) WHERE user_id=(?) and stock_symbol = (?)", [total_shares, user_id, symbol])
+
+            else:
+                # register the stocks bought in the stocks table
+                db.execute(
+                    "INSERT INTO stocks(user_id, stock_symbol, stocks_bought, bought_at, name) VALUES (?, ?, ?, ?, ?)",
+                    (user_id, symbol, shares, look_up["price"], look_up["name"]))
+
+            # insert in the transactions table
+            db.execute(
+                "INSERT INTO TRANSACTIONS(user_id, stock_symbol, stocks_bought, name) VALUES (?, ?, ?, ?)",
+                [user_id, symbol, shares, look_up["name"]])
 
             # update the cash remaining after the transaction is done
             updated_balance = cash_remaining[0]["cash"] - \
-                (shares * look_up["price"])
+                              (shares * look_up["price"])
             db.execute("UPDATE users SET cash = (?) WHERE id = (?)",
-                        (updated_balance, user_id))
+                       (updated_balance, user_id))
             db.commit()
             return redirect("/")
 
@@ -236,7 +259,36 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
-    return apology("TODO")
+    if request.method == "POST":
+        symbol = request.form.get('smbl')
+        shares = int(request.form.get("shares"))
+        user_id = session["user_id"]
+
+        # get the share data from the DB
+        share_details = db.execute("SELECT * FROM stocks WHERE user_id = (?) and stock_symbol=(?)", [user_id, symbol]).fetchall()
+        no_of_shares_previously_owned = share_details[0]["stocks_bought"]
+
+        # if the no of shares to sell if more than the no of shares owned
+        if no_of_shares_previously_owned < shares:
+            return apology("Invalid no of shares!!")
+
+        # if no of shares to sell if equal to no of shares owned
+        elif no_of_shares_previously_owned == shares:
+            db.execute("DELETE FROM stocks WHERE user_id=(?) and stock_symbol=(?)", [user_id, symbol])
+
+        else:
+            db.execute("UPDATE stocks SET stocks_bought=(?) WHERE user_id=(?) and stock_symbol=(?)", [no_of_shares_previously_owned - shares, user_id, symbol])
+
+        return redirect("/")
+
+    else:
+        user_id = session["user_id"]
+
+        # get the list of all the stocks owned from DB
+        stocks_owned_list = db.execute("SELECT stock_symbol FROM stocks WHERE user_ID=(?)",
+                                       [user_id]).fetchall()
+        return render_template("sell.html", stocks_owned_list=stocks_owned_list)
+
 
 def errorhandler(e):
     """Handle error"""
