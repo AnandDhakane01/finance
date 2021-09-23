@@ -1,6 +1,6 @@
 import os
 from re import I
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, jsonify
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
@@ -84,10 +84,9 @@ def index():
 
 
 # TODO
-# understand about session and where it is stored and how we access the user_id
 # redefine index accordingly (optimize)
 # get rid of redundant column in the db
-# understand postman so that I can use it in this project
+
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
@@ -117,14 +116,15 @@ def buy():
             return apology("Insufficient Funds!!")
 
         else:
+            # check if stock already exists in the stocks table
+            exists = db.execute("SELECT * FROM stocks WHERE user_id = (?) AND stock_symbol = (?)",
+                                [user_id, symbol]).fetchall()
 
-            #check if stock already exists in the stocks table
-            exists = db.execute("SELECT * FROM stocks WHERE user_id = (?) AND stock_symbol = (?)", [user_id, symbol]).fetchall()
-
-            # if the stock already exists int he users portfolio then add to it
+            # if the stock already exists in the users portfolio then add to it
             if len(exists) > 0:
                 total_shares = exists[0]["stocks_bought"] + shares
-                db.execute("UPDATE stocks SET stocks_bought= (?) WHERE user_id=(?) and stock_symbol = (?)", [total_shares, user_id, symbol])
+                db.execute("UPDATE stocks SET stocks_bought= (?) WHERE user_id=(?) and stock_symbol = (?)",
+                           [total_shares, user_id, symbol])
 
             else:
                 # register the stocks bought in the stocks table
@@ -134,8 +134,8 @@ def buy():
 
             # insert in the transactions table
             db.execute(
-                "INSERT INTO TRANSACTIONS(user_id, stock_symbol, stocks_bought, name) VALUES (?, ?, ?, ?)",
-                [user_id, symbol, shares, look_up["name"]])
+                "INSERT INTO TRANSACTIONS(user_id, stock_symbol, stocks_bought, bought_at, name) VALUES (?, ?, ?, ?, ?)",
+                [user_id, symbol, shares, look_up["price"], look_up["name"]])
 
             # update the cash remaining after the transaction is done
             updated_balance = cash_remaining[0]["cash"] - \
@@ -153,7 +153,14 @@ def buy():
 @login_required
 def history():
     """Show history of transactions"""
-    return apology("TODO")
+    user_id = session["user_id"]
+    transactions_data = db.execute("SELECT * FROM transactions WHERE user_id = (?)", [user_id]).fetchall()
+
+    # TODO:
+    # ordered dictionary
+    return jsonify(transactions_data)
+
+    # return render_template("history.html", transactions=transactions_data)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -260,24 +267,44 @@ def register():
 def sell():
     """Sell shares of stock"""
     if request.method == "POST":
+
+        # get details from the request
         symbol = request.form.get('smbl')
         shares = int(request.form.get("shares"))
         user_id = session["user_id"]
 
-        # get the share data from the DB
-        share_details = db.execute("SELECT * FROM stocks WHERE user_id = (?) and stock_symbol=(?)", [user_id, symbol]).fetchall()
-        no_of_shares_previously_owned = share_details[0]["stocks_bought"]
+        # get the shares data from the DB
+        share_details = db.execute("SELECT * FROM stocks WHERE user_id = (?) and stock_symbol=(?)",
+                                   [user_id, symbol]).fetchall()
+
+        # if not shares in the stocks table
+        if not share_details:
+            return apology("You don't own shares of this company!!")
 
         # if the no of shares to sell if more than the no of shares owned
+        no_of_shares_previously_owned = share_details[0]["stocks_bought"]
         if no_of_shares_previously_owned < shares:
             return apology("Invalid no of shares!!")
 
-        # if no of shares to sell if equal to no of shares owned
-        elif no_of_shares_previously_owned == shares:
+        # if no of shares to sell is equal to no of shares owned
+        if no_of_shares_previously_owned == shares:
             db.execute("DELETE FROM stocks WHERE user_id=(?) and stock_symbol=(?)", [user_id, symbol])
 
         else:
-            db.execute("UPDATE stocks SET stocks_bought=(?) WHERE user_id=(?) and stock_symbol=(?)", [no_of_shares_previously_owned - shares, user_id, symbol])
+            db.execute("UPDATE stocks SET stocks_bought=(?) WHERE user_id=(?) and stock_symbol=(?)",
+                       [no_of_shares_previously_owned - shares, user_id, symbol])
+
+        # update the transaction in the transactions table
+        stocks_sold = "-" + str(shares)
+        look_up = lookup(symbol)
+        db.execute("INSERT INTO transactions (user_id, stock_symbol, stocks_bought, bought_at, name) VALUES (?, ?, ?, ?, ?)", [user_id, symbol, stocks_sold, look_up["price"], look_up["name"]])
+
+        # update the new cash amount
+        previous_cash = db.execute("SELECT cash FROM users WHERE id=(?)", [user_id]).fetchall()
+        total_cash = previous_cash[0]["cash"] + (shares * look_up["price"])
+
+        db.execute("UPDATE users SET cash=(?) WHERE id=(?)", [total_cash, user_id])
+        db.commit()
 
         return redirect("/")
 
@@ -287,6 +314,7 @@ def sell():
         # get the list of all the stocks owned from DB
         stocks_owned_list = db.execute("SELECT stock_symbol FROM stocks WHERE user_ID=(?)",
                                        [user_id]).fetchall()
+
         return render_template("sell.html", stocks_owned_list=stocks_owned_list)
 
 
