@@ -14,7 +14,7 @@
     <tfoot>
       <tr>
         <td colspan="4"></td>
-        <td><b>${{ grand_total }}</b></td>
+        <td><b>{{ grand_total }}</b></td>
       </tr>
     </tfoot>
     <tbody>
@@ -25,7 +25,7 @@
         <td>{{ new_data[i]["name"] }}</td>
         <td>{{ new_data[i]["stocks_bought"] }}</td>
         <td>{{ new_data[i]["current_price"] }}</td>
-        <td>${{ new_data[i]["total"] }}</td>
+        <td>{{ new_data[i]["total"] }}</td>
       </tr>
       {% endfor %}
       <tr>

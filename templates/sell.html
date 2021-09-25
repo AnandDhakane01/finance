@@ -8,7 +8,7 @@ Sell
 {% block main %}
 <form action="/sell" method="post">
     <div class="form-group">
-        <select class="form-control" name="smbl">
+        <select class="form-control" name="symbol">
             <option disabled selected value="">Symbol</option>
             <!-- for loop -->
             {% for i in stocks_owned_list %}

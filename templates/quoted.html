@@ -6,7 +6,7 @@
 
 {% block main %}
     {% if look_up %}
-    <p> A share of {{ look_up["name"]}} ({{ symbol }}) costs ${{ look_up["price"]}}.</p>
+    <p> A share of {{ look_up["name"]}} ({{ symbol }}) costs {{ look_up["price"]}}.</p>
     {% else %}
     <p>Invalid share symbol</p>
     {% endif %}

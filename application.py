@@ -14,9 +14,6 @@ app = Flask(__name__)
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-print(os.environ.get('API_KEY'))
-
-
 # Ensure responses aren't cached
 @app.after_request
 def after_request(response):
@@ -24,7 +21,6 @@ def after_request(response):
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
-
 
 # Custom filter
 app.jinja_env.filters["usd"] = usd
@@ -35,12 +31,10 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-
 # Configure CS50 Library to use SQLite database
 def make_dicts(cursor, row):
     return dict((cursor.description[idx][0], value)
                 for idx, value in enumerate(row))
-
 
 db = sqlite3.connect("finance.db", check_same_thread=False)
 db.row_factory = make_dicts
@@ -53,12 +47,13 @@ if not os.environ.get('API_KEY'):
 @app.route("/")
 @login_required
 def index():
+
     """Show portfolio of stocks"""
     user_id = session["user_id"]
 
     # get cash remaining from the DB
-    cash_remaining = round(db.execute(
-        "SELECT cash FROM users WHERE id = (?)", (user_id,)).fetchall()[0]["cash"], 2)
+    cash_remaining = int(db.execute(
+        "SELECT cash FROM users WHERE id = (?)", (user_id,)).fetchall()[0]["cash"])
 
     # get stock transactions for this particular user from the DB
     data = db.execute(
@@ -68,20 +63,17 @@ def index():
     grand_total = 0
 
     for i in data:
-        current_price = round(lookup(i["stock_symbol"])["price"], 2)
-        if i["stock_symbol"] in new_data:
-            new_data[i["stock_symbol"]]["stocks_bought"] += i["stocks_bought"]
-            new_data[i["stock_symbol"]]["total"] += i["stocks_bought"] * current_price
-        else:
-            new_data[i["stock_symbol"]] = {"stocks_bought": i["stocks_bought"], "name": i["name"],
-                                           "total": current_price * i["stocks_bought"], "current_price": current_price}
+        current_price = lookup(i["stock_symbol"])["price"]
+        
+        new_data[i["stock_symbol"]] = {"stocks_bought": i["stocks_bought"], "name" : i["name"], "total" : current_price * i["stocks_bought"], "current_price" : usd(current_price)}
 
-    for i in new_data.values():
-        i["total"] = round(i["total"], 2)
-        grand_total += i["total"]
-    grand_total = round(grand_total + cash_remaining, 2)
-    return render_template("index.html", cash_remaining=cash_remaining, new_data=new_data, grand_total=grand_total)
+    for i in new_data:
+        grand_total += int(new_data[i]["total"])
+        new_data[i]["total"] = usd(new_data[i]["total"])
 
+    grand_total = grand_total + cash_remaining
+
+    return render_template("index.html", cash_remaining=usd(cash_remaining), new_data=new_data, grand_total=usd(grand_total))
 
 # TODO
 # redefine index accordingly (optimize)
@@ -95,12 +87,14 @@ def buy():
 
         # get data from user
         symbol = request.form.get("symbol")
-        shares = int(request.form.get("shares"))
+        shares = request.form.get("shares")
         look_up = lookup(symbol)
-        if not shares or shares < 0:
+        if not shares or not shares.isnumeric() or int(shares) < 0:
             return apology("Invalid amount of shares!!")
         elif not look_up:
             return apology("Invalid Symbol!!")
+
+        shares = int(shares)
 
         # get user info
         user_id = session["user_id"]
@@ -140,8 +134,8 @@ def buy():
             # update the cash remaining after the transaction is done
             updated_balance = cash_remaining[0]["cash"] - \
                               (shares * look_up["price"])
-            db.execute("UPDATE users SET cash = (?) WHERE id = (?)",
-                       (updated_balance, user_id))
+                              
+            db.execute("UPDATE users SET cash = (?) WHERE id = (?)", [updated_balance, user_id])
             db.commit()
             return redirect("/")
 
@@ -158,9 +152,9 @@ def history():
 
     # TODO:
     # ordered dictionary
-    return jsonify(transactions_data)
+    # return jsonify(transactions_data)
 
-    # return render_template("history.html", transactions=transactions_data)
+    return render_template("history.html", transactions=transactions_data)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -220,6 +214,10 @@ def quote():
         # lookup the stock price and display it to the user
         symbol = request.form.get("symbol")
         look_up = lookup(symbol)
+
+        if not look_up:
+            return apology("Invalid Symbol")
+        look_up["price"] = usd(look_up["price"])
         return render_template("quoted.html", symbol=symbol, look_up=look_up)
 
     else:
@@ -233,7 +231,7 @@ def register():
         # Get username and password from the request
         username = request.form.get("username")
         password = request.form.get("password")
-        confirm_password = request.form.get("confirm_password")
+        confirm_password = request.form.get("confirmation")
 
         # check if the username exists in the database
         check_username = db.execute(
@@ -249,7 +247,6 @@ def register():
 
         # if the username is already taken
         elif len(check_username) > 0:
-            print("in username already taken")
             return apology("Username already taken!!")
         else:
             # insert the user details in the database
@@ -269,7 +266,7 @@ def sell():
     if request.method == "POST":
 
         # get details from the request
-        symbol = request.form.get('smbl')
+        symbol = request.form.get('symbol')
         shares = int(request.form.get("shares"))
         user_id = session["user_id"]
 
@@ -316,7 +313,6 @@ def sell():
                                        [user_id]).fetchall()
 
         return render_template("sell.html", stocks_owned_list=stocks_owned_list)
-
 
 def errorhandler(e):
     """Handle error"""

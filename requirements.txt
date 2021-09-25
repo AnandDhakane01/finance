@@ -7,3 +7,43 @@ requests
 export FLASK_ENV=development
 export FLASK_APP=application
 export API_KEY=pk_18cd28a75043425ba14c50c7e6cbc495
+
+test cases:
+
+:) application.py exists
+:) application starts up
+:( register page has all required elements
+    expected to find input field with name "confirmation", but none found
+:| registering user succeeds
+    can't check until a frown turns upside down
+:| registration with an empty field fails
+    can't check until a frown turns upside down
+:| registration with password mismatch fails
+    can't check until a frown turns upside down
+:| registration rejects duplicate username
+    can't check until a frown turns upside down
+:) login page has all required elements
+:| logging in as registered user succceeds
+    can't check until a frown turns upside down
+:| quote page has all required elements
+    can't check until a frown turns upside down
+:| quote handles invalid ticker symbol
+    can't check until a frown turns upside down
+:| quote handles blank ticker symbol
+    can't check until a frown turns upside down
+:| quote handles valid ticker symbol
+    can't check until a frown turns upside down
+:| buy page has all required elements
+    can't check until a frown turns upside down
+:| buy handles invalid ticker symbol
+    can't check until a frown turns upside down
+:| buy handles fractional, negative, and non-numeric shares
+    can't check until a frown turns upside down
+:| buy handles valid purchase
+    can't check until a frown turns upside down
+:| sell page has all required elements
+    can't check until a frown turns upside down
+:| sell handles invalid number of shares
+    can't check until a frown turns upside down
+:| sell handles valid sale
+    can't check until a frown turns upside down
