@@ -75,10 +75,6 @@ def index():
 
     return render_template("index.html", cash_remaining=usd(cash_remaining), new_data=new_data, grand_total=usd(grand_total))
 
-# TODO
-# redefine index accordingly (optimize)
-# get rid of redundant column in the db
-
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
@@ -95,7 +91,6 @@ def buy():
             return apology("Invalid Symbol!!")
 
         shares = int(shares)
-
         # get user info
         user_id = session["user_id"]
         user_name = db.execute(
