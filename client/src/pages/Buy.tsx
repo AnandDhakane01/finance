@@ -1,6 +1,6 @@
 import React from "react";
 
-const Quote = () => {
+export default function Buy() {
   return (
     <>
       <div className="flex justify-center text-center my-20">
@@ -15,11 +15,22 @@ const Quote = () => {
               type="text"
             />
           </div>
-          <button className="mt-4 p-2 rounded-lg bg-blue-400" type="submit">
-            Quote
+          <div className="mt-4">
+            <input
+              autoComplete="off"
+              className="bg-gray-800 outline-none border-none p-3 rounded-lg "
+              name="shares"
+              placeholder="shares"
+              type="text"
+            />
+          </div>
+          <button className="mt-4 py-2 px-4 rounded-lg bg-blue-400" type="submit">
+              Buy
           </button>
         </form>
       </div>
+
+      {/* CREDITS TO THE STOCKS DATA API PROVIDER */}
 
       {/* <footer className="text-sm text-center">
         Data provided for free by &nbsp;
@@ -40,6 +51,4 @@ const Quote = () => {
       </footer> */}
     </>
   );
-};
-
-export default Quote;
+}
