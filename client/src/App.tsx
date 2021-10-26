@@ -9,6 +9,8 @@ import {
 } from "react-router-dom";
 import Buy from "./pages/Buy";
 import Sell from "./pages/Sell";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route exact path="/quote" component={withRouter(Quote)} />
           <Route exact path="/buy" component={withRouter(Buy)} />
           <Route exact path="/sell" component={withRouter(Sell)} />
+          <Route exact path="/login" component={withRouter(Login)} />
+          <Route exact path="/register" component={withRouter(Register)} />
         </Switch>
       </Router>
     </div>

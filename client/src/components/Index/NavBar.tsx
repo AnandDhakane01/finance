@@ -20,8 +20,13 @@ const NavBar: FC = () => {
         <button className="m-5">History</button>
       </div>
       <div className="profile absolute inset-y-0 flex items-center right-10">
-        <h2 className="mr-3 text-lg">Anand</h2>
-        <button
+        <h2 className="mr-3 text-lg">
+          <Link to="/login"> Login</Link>
+        </h2>
+        <h2 className="mr-3 text-lg">
+          <Link to="/register">Register</Link>
+        </h2>
+        {/* <button
           type="button"
           className="bg-gray-800 flex text-sm rounded-full focus:outline-none"
           id="user-menu-button"
@@ -34,7 +39,7 @@ const NavBar: FC = () => {
             src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
             alt=""
           />
-        </button>
+        </button> */}
       </div>
     </nav>
   );
