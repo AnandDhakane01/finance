@@ -15,9 +15,9 @@ router.get("/", function (req, res) {
   return res.status(200).send("Index router");
 });
 
-router.post("/register", registerInitialChecks, register);
+router.post("/register", register);
 
-router.post("/login", loginInitialChecks, login);
+router.post("/login", login);
 
 router.post("/buy", loginRequired, buy);
 

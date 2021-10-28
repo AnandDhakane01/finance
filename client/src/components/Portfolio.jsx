@@ -1,3 +1,5 @@
+import React from 'react'
+
 const Portfolio = () => {
     return (
         <div className="bg-gray-800 lg:w-4/6 lg:mr-5 lg:rounded-lg py-10 my-5 lg:ml-3">

@@ -1,16 +1,17 @@
-import Index from "./pages/Index";
-import NavBar from "./components/Index/NavBar";
-import Quote from "./pages/Quote";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   withRouter,
 } from "react-router-dom";
+
 import Buy from "./pages/Buy";
 import Sell from "./pages/Sell";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Index from "./pages/Index";
+import Quote from "./pages/Quote";
+import NavBar from "./components/NavBar";
 
 function App() {
   return (

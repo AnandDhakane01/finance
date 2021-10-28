@@ -5,7 +5,8 @@ const { Op } = require("sequelize");
 
 const register = async (req, res) => {
   const saltRounds = 10;
-  const { userName, email, password } = req.body;
+  const { userName, email, password } = req.body.userName;
+  console.log(userName, email, password);
 
   try {
     // check if user already exists with the same email
@@ -33,15 +34,16 @@ const register = async (req, res) => {
       //save user
       const savedUser = await newUser.save();
 
-      return res.redirect("/");
+      return res.status(201).json(savedUser);
     }
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: `there was an error: ${err.message}` });
   }
 };
 
 const login = async (req, res) => {
-  const { userName, password } = req.body;
+  const { userName, password } = req.body.userName;
   try {
     // find user by userName
     const user = await User.findOne({
@@ -70,10 +72,10 @@ const login = async (req, res) => {
       }
     }
   } catch (err) {
-    res.status(500).json({ message: `there was an error: ${err.message}` });
+    return res
+      .status(500)
+      .json({ message: `there was an error: ${err.message}` });
   }
-
-  // return res.status(200).json({ message: "login" });
 };
 
 module.exports = { register, login };

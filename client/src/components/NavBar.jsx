@@ -1,7 +1,7 @@
-import { FC } from "react";
 import { Link } from "react-router-dom";
+import React from 'react'
 
-const NavBar: FC = () => {
+const NavBar = () => {
   return (
     <nav className="relative navbar bg-gray-700 text-white">
       <h3 className="text-xl font-bold absolute inset-y-0 left-10 flex items-center">

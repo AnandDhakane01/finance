@@ -5,7 +5,7 @@ const sequelize = new Sequelize("stonksdb", "postgres", "asdf12345", {
   host: "localhost",
   dialect: "postgres" /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
 });
-sequelize.sync({ force: true });
+sequelize.sync();
 
 async () => {
   try {
