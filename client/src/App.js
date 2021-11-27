@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import Index from "./pages/Index";
 import Quote from "./pages/Quote";
 import NavBar from "./components/NavBar";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
@@ -19,10 +20,13 @@ function App() {
       <Router>
         <NavBar />
         <Switch>
-          <Route exact path="/" component={withRouter(Index)} />
-          <Route exact path="/quote" component={withRouter(Quote)} />
-          <Route exact path="/buy" component={withRouter(Buy)} />
-          <Route exact path="/sell" component={withRouter(Sell)} />
+          {/* Private Routes*/}
+          <PrivateRoute exact path="/" component={Index} />
+          <PrivateRoute exact path="/quote" component={Quote} />
+          <PrivateRoute exact path="/buy" component={Buy} />
+          <PrivateRoute exact path="/sell" component={Sell} />
+
+          {/* Restricted Routes */}
           <Route exact path="/login" component={withRouter(Login)} />
           <Route exact path="/register" component={withRouter(Register)} />
         </Switch>

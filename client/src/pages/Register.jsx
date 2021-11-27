@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { register } from "../services/authService";
 import { useHistory } from "react-router-dom";
 
@@ -19,6 +19,9 @@ export default function Register() {
   };
 
   const handleSubmit = (event) => {
+    console.log("");
+    console.log("heresubmit");
+    console.log("");
     event.preventDefault();
     // verify data
     if (

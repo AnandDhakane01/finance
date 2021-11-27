@@ -5,7 +5,7 @@ const { Op } = require("sequelize");
 
 const register = async (req, res) => {
   const saltRounds = 10;
-  const { userName, email, password } = req.body.userName;
+  const { userName, email, password } = req.body;
   console.log(userName, email, password);
 
   try {
@@ -43,7 +43,7 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { userName, password } = req.body.userName;
+  const { userName, password } = req.body;
   try {
     // find user by userName
     const user = await User.findOne({
@@ -51,18 +51,13 @@ const login = async (req, res) => {
     });
 
     if (user === null) {
-      res.status(400).send("Invalid Credentials");
+      res.status(401).send("Invalid Credentials");
     } else {
       if (await bcrypt.compare(password, user.password)) {
         // create a jwt token
         const accessToken = jwt.sign(user.dataValues, process.env.SECRET);
 
-        // set cookie
-        res.cookie("accessToken", accessToken, {
-          httpOnly: true,
-        });
-
-        res.status(200).json({
+        return res.status(200).send({
           message: "loggedIn",
           accessToken: accessToken,
           user,

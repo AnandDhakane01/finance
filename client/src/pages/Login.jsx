@@ -18,12 +18,15 @@ export default function Login() {
     if (formData.userName && formData.password) {
       login(formData).then((res) => {
         console.log(res);
-        if (res && res.message == "loggedIn") {
-          history.push("/");
-        }
+        console.log("hereIam");
+        history.push("/");
+        // if (res && res.message === "loggedIn") {
+        // }
       });
+      // .then(() => {
+      //   setformData({ userName: "", password: "" });
+      // });
     }
-    setformData({ userName: "", password: "" });
   };
 
   return (
@@ -37,7 +40,7 @@ export default function Login() {
               autoFocus
               className="bg-gray-800 outline-none border-none p-3 rounded-lg "
               name="userName"
-              placeholder="userName"
+              placeholder="username"
               type="text"
               onChange={handleChange}
             />

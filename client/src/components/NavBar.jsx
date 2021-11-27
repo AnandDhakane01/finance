@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import React from 'react'
+import React from "react";
+import { isLogin } from "../utils/isLogin";
 
 const NavBar = () => {
   return (
@@ -19,14 +20,23 @@ const NavBar = () => {
         </button>
         <button className="m-5">History</button>
       </div>
-      <div className="profile absolute inset-y-0 flex items-center right-10">
-        <h2 className="mr-3 text-lg">
-          <Link to="/login"> Login</Link>
-        </h2>
-        <h2 className="mr-3 text-lg">
-          <Link to="/register">Register</Link>
-        </h2>
-        {/* <button
+      {!isLogin() ? (
+        <div className="profile absolute inset-y-0 flex items-center right-10">
+          <h2 className="mr-3 text-lg">
+            <Link to="/login"> Login</Link>
+          </h2>
+          <h2 className="mr-3 text-lg">
+            <Link to="/register">Register</Link>
+          </h2>
+        </div>
+      ) : (
+        <div className="profile absolute inset-y-0 flex items-center right-10">
+          <h2 className="mr-3 text-lg">
+            <Link to="/login"> LogOut </Link>
+          </h2>
+        </div>
+      )}
+      {/* <button
           type="button"
           className="bg-gray-800 flex text-sm rounded-full focus:outline-none"
           id="user-menu-button"
@@ -40,7 +50,6 @@ const NavBar = () => {
             alt=""
           />
         </button> */}
-      </div>
     </nav>
   );
 };

@@ -1,20 +1,17 @@
 import { proxy } from "../proxy";
 
-const register = async (userName, email, password) => {
+const register = async (formData) => {
   // POST request using fetch inside useEffect React hook
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userName: userName,
-      email: email,
-      password: password,
-    }),
+    body: JSON.stringify(formData),
   };
 
   try {
     const response = await fetch(`${proxy}/register`, requestOptions);
-    return await response.json();
+    const resp = await response.json();
+    return resp;
   } catch (err) {
     console.log("");
     console.log(err);
@@ -22,18 +19,16 @@ const register = async (userName, email, password) => {
   }
 };
 
-const login = async (userName, password) => {
+const login = async (formData) => {
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userName: userName,
-      password: password,
-    }),
+    body: JSON.stringify(formData),
   };
   try {
     const response = await fetch(`${proxy}/login`, requestOptions);
-    return await response.json();
+    const resp = await response.json();
+    return resp;
   } catch (err) {
     console.log("");
     console.log(err);
