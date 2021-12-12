@@ -1,5 +1,3 @@
-import Cookies from "js-cookie";
-
 const TOKEN_KEY = "accessToken";
 
 export const isLogin = () => {

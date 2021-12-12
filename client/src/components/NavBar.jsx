@@ -1,8 +1,19 @@
 import { Link } from "react-router-dom";
-import React from "react";
 import { isLogin } from "../utils/isLogin";
+import { useHistory } from "react-router-dom";
 
-const NavBar = () => {
+const NavBar = (isLoggedin) => {
+  const history = useHistory();
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    try {
+      localStorage.removeItem("accessToken");
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
   return (
     <nav className="relative navbar bg-gray-700 text-white">
       <h3 className="text-xl font-bold absolute inset-y-0 left-10 flex items-center">
@@ -32,7 +43,9 @@ const NavBar = () => {
       ) : (
         <div className="profile absolute inset-y-0 flex items-center right-10">
           <h2 className="mr-3 text-lg">
-            <Link to="/login"> LogOut </Link>
+            <button onClick={handleLogout}>
+              <Link to="/login"> LogOut </Link>
+            </button>
           </h2>
         </div>
       )}

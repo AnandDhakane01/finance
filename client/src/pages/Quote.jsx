@@ -1,8 +1,10 @@
 import React from "react";
+import NavBar from "../components/NavBar";
 
 const Quote = () => {
   return (
     <>
+      <NavBar />
       <div className="flex justify-center text-center my-20">
         <form action="/quote" method="post">
           <div className="">

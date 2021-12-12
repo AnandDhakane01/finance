@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { register } from "../services/authService";
 import { useHistory } from "react-router-dom";
+import NavBar from "../components/NavBar";
 
 export default function Register() {
   const history = useHistory();
@@ -42,6 +43,7 @@ export default function Register() {
 
   return (
     <>
+      <NavBar />
       <div className="flex justify-center text-center my-20">
         <form onSubmit={handleSubmit}>
           <div className="">

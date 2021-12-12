@@ -1,6 +1,7 @@
 import { React, useState } from "react";
 import { login } from "../services/authService";
 import { useHistory } from "react-router-dom";
+import NavBar from "../components/NavBar";
 
 export default function Login() {
   const history = useHistory();
@@ -17,20 +18,16 @@ export default function Login() {
     e.preventDefault();
     if (formData.userName && formData.password) {
       login(formData).then((res) => {
-        console.log(res);
-        console.log("hereIam");
+        setformData({ userName: "", password: "" });
+        localStorage.setItem("accessToken", res.accessToken);
         history.push("/");
-        // if (res && res.message === "loggedIn") {
-        // }
       });
-      // .then(() => {
-      //   setformData({ userName: "", password: "" });
-      // });
     }
   };
 
   return (
     <>
+      <NavBar />
       <div className="flex justify-center text-center my-20">
         <form onSubmit={handleSubmit} method="post">
           <div className="">

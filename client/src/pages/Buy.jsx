@@ -1,8 +1,11 @@
 import React from "react";
+import NavBar from "../components/NavBar";
+
 
 export default function Buy() {
   return (
     <>
+      <NavBar />
       <div className="flex justify-center text-center my-20">
         <form action="" method="post">
           <div className="">
