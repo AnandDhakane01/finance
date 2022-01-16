@@ -1,28 +1,24 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../database/index");
 
-const User = sequelize.define("user", {
+const Stock = sequelize.define("stocks", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  userName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  cash: {
+  user_id: {
     type: DataTypes.INTEGER,
-    defaultValue: 10000,
+    allowNull: false,
+    references: {
+      model: "users",
+      key: "id",
+    },
   },
-  password: {
-    type: DataTypes.STRING,
+  no_of_shares: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
 });
 
-module.exports = User;
+module.exports = Stock;

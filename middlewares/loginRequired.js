@@ -1,11 +1,10 @@
 const jwt = require("jsonwebtoken");
 
 const loginRequired = async (req, res, next) => {
-  const token = req.cookies.accessToken;
+  const token = req.headers.authorization;
   console.log(token);
 
   if (token == null) {
-    // return res.redirect("/login");
     res
       .status(401)
       .json({ message: "Hey user, you need to be logged in first!" });

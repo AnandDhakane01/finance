@@ -5,8 +5,7 @@ const { Op } = require("sequelize");
 
 const register = async (req, res) => {
   const saltRounds = 10;
-  const { userName, email, password } = req.body;
-  console.log(userName, email, password);
+  const { userName, email, password, confirmPassword } = req.body;
 
   try {
     // check if user already exists with the same email
@@ -19,6 +18,8 @@ const register = async (req, res) => {
       return res
         .status(403)
         .json({ message: "Email or Username already exists!!" });
+    } else if (confirmPassword != password) {
+      return res.status(403).json({ message: "Passwords don't match!" });
     } else {
       // hash the password
       const salt = bcrypt.genSaltSync(saltRounds);
