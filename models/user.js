@@ -16,8 +16,8 @@ const User = sequelize.define("user", {
     allowNull: false,
   },
   cash: {
-    type: DataTypes.INTEGER,
-    defaultValue: 10000,
+    type: DataTypes.FLOAT,
+    defaultValue: 10000.0,
   },
   password: {
     type: DataTypes.STRING,

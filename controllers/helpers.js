@@ -8,16 +8,17 @@ const lookup = async (symbol) => {
   try {
     const response = await fetch(url).then((res) => res.json());
     // parse response
-    return {
+    res = {
       name: response.companyName,
-      price: response.latestPrice,
+      price: parseFloat(response.latestPrice).toFixed(2),
       symbol: response.symbol,
     };
+    return [null, res];
   } catch (err) {
     console.log("");
     console.log("Error in lookup!!", err);
     console.log("");
-    return err;
+    return [err, null];
   }
 };
 

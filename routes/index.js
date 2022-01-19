@@ -29,6 +29,11 @@ router.post("/buy", loginRequired, buy);
 
 // @requires
 // symbol
-router.post("/quote", quote);
+router.post("/quote", loginRequired, quote);
+
+// @requited
+// symbol
+// no_of_shares
+// router.post("/sell", loginRequired, sell);
 
 module.exports = router;

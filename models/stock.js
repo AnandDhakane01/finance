@@ -15,6 +15,10 @@ const Stock = sequelize.define("stocks", {
       key: "id",
     },
   },
+  stock_symbol: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   no_of_shares: {
     type: DataTypes.INTEGER,
     allowNull: false,
