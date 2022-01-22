@@ -61,7 +61,10 @@ const buy = async (req, res) => {
     }
 
     // update cash
-    await User.update({ cash: user.cash - amount }, { where: { id: user.id } });
+    await User.update(
+      { cash: parseFloat(user.cash - amount).toFixed(2) },
+      { where: { id: user.id } }
+    );
 
     // add to history
     res.status(200).json({
