@@ -2,6 +2,7 @@ const Stocks = require("../models/stock");
 const { lookup } = require("./helpers");
 const User = require("../models/user");
 
+// sell post
 const sell = async (req, res) => {
   // symbol
   // no_of_shares
@@ -65,4 +66,24 @@ const sell = async (req, res) => {
   }
 };
 
-module.exports = { sell };
+// sell get
+const sellGet = async (req, res) => {
+  try {
+    const stocks = (
+      await Stocks.findAll({
+        where: { user_id: req.user.id },
+      })
+    ).map((stock) => {
+      return {
+        stock_symbol: stock.dataValues.stock_symbol,
+        no_of_shares: stock.dataValues.no_of_shares,
+      };
+    });
+
+    return res.status(200).json({ stocks });
+  } catch (err) {
+    return res.status(500).json({ error: true, message: `${err}` });
+  }
+};
+
+module.exports = { sell, sellGet };
