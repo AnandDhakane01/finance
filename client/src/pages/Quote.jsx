@@ -2,32 +2,28 @@ import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import quote from "../services/quoteService";
 
+// TODO: display error component
+
 const Quote = () => {
-  const [lookupData, setLookupData] = useState({});
+  const [lookupData, setLookupData] = useState();
   const [showQuote, setShowQuote] = useState(false);
+  const [symbol, setSymbol] = useState({ symbol: "" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const x = await quote(symbol);
-    console.log(x);
-    setLookupData(x);
+    const response = await quote(symbol);
+    setLookupData(response);
     setShowQuote(true);
-    return x;
+    return response;
   };
 
-  const handleChange = (event) =>
+  const handleChange = (event) => {
     setSymbol({
       [event.target.name]: event.target.value,
     });
-
-  const [symbol, setSymbol] = useState({
-    symbol: "",
-  });
+  };
 
   if (!showQuote) {
-    console.log("");
-    console.log(showQuote);
-    console.log("");
     return (
       <>
         <NavBar />
@@ -73,9 +69,35 @@ const Quote = () => {
       </footer> */}
       </>
     );
-  } else {
-    return <div>{lookupData[symbol]}</div>;
   }
+  return (
+    <>
+      <NavBar />
+      <div className="justify-center text-center my-20">
+        <h1>
+          A share of {lookupData[1].name} costs ${lookupData[1].price}.
+        </h1>
+      </div>
+
+      {/* <footer className="text-sm text-center">
+        Data provided for free by &nbsp;
+        <a
+          className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+          href="https://iextrading.com/developer"
+        >
+          IEX
+        </a>
+        . View &nbsp;
+        <a
+          className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+          href="https://iextrading.com/api-exhibit-a/"
+        >
+          IEX’s Terms of Use
+        </a>
+        .
+      </footer> */}
+    </>
+  );
 };
 
 export default Quote;

@@ -1,8 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import NavBar from "../components/NavBar";
-
+import buy from "../services/buyService";
 
 export default function Buy() {
+  const [formData, setformData] = useState({ symbol: "", no_of_shares: 0 });
+
+  const handleChange = (e) => {
+    setformData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const response = await buy(formData);
+  };
+
   return (
     <>
       <NavBar />
@@ -16,20 +30,23 @@ export default function Buy() {
               name="symbol"
               placeholder="symbol"
               type="text"
+              onChange={handleChange}
             />
           </div>
           <div className="mt-4">
             <input
               autoComplete="off"
               className="bg-gray-800 outline-none border-none p-3 rounded-lg "
-              name="shares"
+              name="no_of_shares"
               placeholder="shares"
               type="text"
+              onChange={handleChange}
             />
           </div>
           <button
             className="mt-4 py-2 px-4 rounded-lg bg-blue-400"
             type="submit"
+            onClick={handleSubmit}
           >
             Buy
           </button>
