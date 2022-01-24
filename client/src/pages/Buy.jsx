@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import NavBar from "../components/NavBar";
+import { useHistory } from "react-router-dom";
 import buy from "../services/buyService";
 
 export default function Buy() {
+  const history = useHistory();
   const [formData, setformData] = useState({ symbol: "", no_of_shares: 0 });
 
   const handleChange = (e) => {
@@ -15,6 +17,8 @@ export default function Buy() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await buy(formData);
+    // TODO: error component
+    history.push("/");
   };
 
   return (

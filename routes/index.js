@@ -37,7 +37,6 @@ router.post("/quote", loginRequired, quote);
 // symbol
 // no_of_shares
 router.post("/sell", loginRequired, sell);
-
 router.get("/sell", loginRequired, sellGet);
 
 module.exports = router;

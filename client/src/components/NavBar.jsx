@@ -1,10 +1,7 @@
 import { Link } from "react-router-dom";
 import { isLogin } from "../utils/isLogin";
-import { useHistory } from "react-router-dom";
 
-const NavBar = (isLoggedin) => {
-  const history = useHistory();
-
+const NavBar = () => {
   const handleLogout = (e) => {
     e.preventDefault();
     try {
@@ -44,7 +41,7 @@ const NavBar = (isLoggedin) => {
         <div className="profile absolute inset-y-0 flex items-center right-10">
           <h2 className="mr-3 text-lg">
             <button onClick={handleLogout}>
-              <Link to="/login"> LogOut </Link>
+              <Link to="/login"> Log out </Link>
             </button>
           </h2>
         </div>

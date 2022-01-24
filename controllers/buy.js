@@ -6,7 +6,10 @@ const User = require("../models/user");
 // TODO: configure logger to log the errors
 
 const buy = async (req, res) => {
-  const { symbol, no_of_shares } = req.body;
+  let { symbol, no_of_shares } = req.body;
+
+  // this part needs to be cleaned
+  no_of_shares = parseInt(no_of_shares);
   let user;
   let stock;
 

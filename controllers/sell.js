@@ -73,12 +73,7 @@ const sellGet = async (req, res) => {
       await Stocks.findAll({
         where: { user_id: req.user.id },
       })
-    ).map((stock) => {
-      return {
-        stock_symbol: stock.dataValues.stock_symbol,
-        no_of_shares: stock.dataValues.no_of_shares,
-      };
-    });
+    ).map((stock) => stock.dataValues.stock_symbol);
 
     return res.status(200).json({ stocks });
   } catch (err) {

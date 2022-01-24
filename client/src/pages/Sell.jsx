@@ -1,7 +1,16 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "../components/NavBar";
+import { sell, getStocksList } from "../services/sellService";
 
 export default function Sell() {
+  const [stocksList, setStocksList] = useState();
+
+  useEffect(async () => {
+    const response = await getStocksList();
+    setStocksList(response);
+    console.log(response);
+  }, []);
+
   return (
     <>
       <NavBar />
@@ -14,10 +23,8 @@ export default function Sell() {
                 <option disabled selected>
                   Select
                 </option>
-                <option>SM</option>
-                <option>M</option>
-                <option>L</option>
-                <option>XL</option>
+                {stocksList &&
+                  stocksList.stocks.map((st) => <option>{st}</option>)}
               </select>
             </div>
           </div>
