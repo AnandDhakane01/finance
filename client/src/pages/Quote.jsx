@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import NavBar from "../components/NavBar";
 import quote from "../services/quoteService";
-
-// TODO: display error component
+import { useHistory } from "react-router-dom";
 
 const Quote = () => {
+  const history = useHistory();
   const [lookupData, setLookupData] = useState();
   const [showQuote, setShowQuote] = useState(false);
   const [symbol, setSymbol] = useState({ symbol: "" });
@@ -12,9 +12,12 @@ const Quote = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await quote(symbol);
+    if (response.error) {
+      alert(response.message);
+      history.push("/");
+    }
     setLookupData(response);
     setShowQuote(true);
-    return response;
   };
 
   const handleChange = (event) => {

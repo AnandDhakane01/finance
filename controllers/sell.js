@@ -4,9 +4,18 @@ const User = require("../models/user");
 
 // sell post
 const sell = async (req, res) => {
-  // symbol
-  // no_of_shares
-  const { symbol, no_of_shares } = req.body;
+  let { symbol, no_of_shares } = req.body;
+
+  // validate payload
+  if (
+    typeof symbol !== "string" ||
+    (typeof no_of_shares !== "number" || no_of_shares <= 0)
+  ) {
+    return res
+      .status(400)
+      .json({ error: true, message: "Invalid symbol/shares" });
+  }
+
   let user;
   let shares_in_portfolio;
 

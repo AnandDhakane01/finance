@@ -17,7 +17,9 @@ export default function Buy() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await buy(formData);
-    // TODO: error component
+    if (response.error) {
+      alert(response.message);
+    }
     history.push("/");
   };
 
@@ -43,7 +45,7 @@ export default function Buy() {
               className="bg-gray-800 outline-none border-none p-3 rounded-lg "
               name="no_of_shares"
               placeholder="shares"
-              type="text"
+              type="number"
               onChange={handleChange}
             />
           </div>

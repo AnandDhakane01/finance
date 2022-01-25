@@ -12,7 +12,6 @@ const quote = async (symbol) => {
     const response = await fetch(`${proxy}/quote`, requestOptions).then((res) =>
       res.json()
     );
-    console.log(response);
     return response;
   } catch (err) {
     console.log("\n", err, "\n");
