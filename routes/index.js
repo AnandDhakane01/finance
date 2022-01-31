@@ -5,6 +5,7 @@ const { quote } = require("../controllers/quote");
 const { buy } = require("../controllers/buy");
 const { sell } = require("../controllers/sell");
 const { sellGet } = require("../controllers/sell");
+const { getStocksData } = require("../controllers/portfolio");
 const loginRequired = require("../middlewares/loginRequired");
 
 /* GET home page. */
@@ -33,10 +34,11 @@ router.post("/buy", loginRequired, buy);
 // symbol
 router.post("/quote", loginRequired, quote);
 
-// @requited
+// @required
 // symbol
 // no_of_shares
 router.post("/sell", loginRequired, sell);
 router.get("/sell", loginRequired, sellGet);
 
+router.get("/stocks", loginRequired, getStocksData);
 module.exports = router;

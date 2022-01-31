@@ -8,9 +8,8 @@ const User = require("../models/user");
 const buy = async (req, res) => {
   let { symbol, no_of_shares } = req.body;
 
-  console.log(symbol, no_of_shares, !isNaN(no_of_shares));
   // Validate payload
-  if (typeof symbol !== "string" || isNaN(no_of_shares) || no_of_shares <= 0) {
+  if (typeof symbol !== "string" || isNaN(no_of_shares) || parseInt(no_of_shares) <= 0) {
     return res
       .status(400)
       .json({ error: true, message: "Invalid symbol/shares" });

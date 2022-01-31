@@ -8,9 +8,12 @@ export default function Sell() {
   const [stocksList, setStocksList] = useState();
   const [formData, setformData] = useState({ symbol: "", no_of_shares: 0 });
 
-  useEffect(async () => {
-    const response = await getStocksList();
-    setStocksList(response);
+  useEffect(() => {
+    const getData = async () => {
+      const response = await getStocksList();
+      setStocksList(response);
+    };
+    getData();
   }, []);
 
   const handleChange = (e) => {
@@ -18,7 +21,6 @@ export default function Sell() {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    console.log(formData);
   };
 
   const handleSubmit = async (e) => {
@@ -28,7 +30,6 @@ export default function Sell() {
       alert(response.message);
     }
     history.push("/");
-    console.log(response);
   };
 
   return (
@@ -48,7 +49,9 @@ export default function Sell() {
                   Select
                 </option>
                 {stocksList &&
-                  stocksList.stocks.map((st) => <option>{st}</option>)}
+                  stocksList.stocks.map((st, index) => (
+                    <option key={index}>{st}</option>
+                  ))}
               </select>
             </div>
           </div>

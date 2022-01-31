@@ -78,7 +78,7 @@ const Quote = () => {
       <NavBar />
       <div className="justify-center text-center my-20">
         <h1>
-          A share of {lookupData[1].name} costs ${lookupData[1].price}.
+          A share of {lookupData.name} costs ${lookupData.price}.
         </h1>
       </div>
 

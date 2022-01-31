@@ -9,13 +9,16 @@ const sell = async (req, res) => {
   // validate payload
   if (
     typeof symbol !== "string" ||
-    (typeof no_of_shares !== "number" || no_of_shares <= 0)
+    isNaN(no_of_shares) ||
+    parseInt(no_of_shares) <= 0
   ) {
     return res
       .status(400)
       .json({ error: true, message: "Invalid symbol/shares" });
   }
 
+  no_of_shares = parseInt(no_of_shares);
+  symbol = symbol.toUpperCase();
   let user;
   let shares_in_portfolio;
 
@@ -45,17 +48,24 @@ const sell = async (req, res) => {
   // update stocks
   if (no_of_shares <= shares_in_portfolio.no_of_shares) {
     try {
-      await Stocks.update(
-        {
-          no_of_shares: shares_in_portfolio.no_of_shares - no_of_shares,
-        },
-        {
-          where: {
-            stock_symbol: symbol,
-            user_id: req.user.id,
-          },
-        }
-      );
+      shares_in_portfolio.no_of_shares - no_of_shares != 0
+        ? await Stocks.update(
+            {
+              no_of_shares: shares_in_portfolio.no_of_shares - no_of_shares,
+            },
+            {
+              where: {
+                stock_symbol: symbol,
+                user_id: req.user.id,
+              },
+            }
+          )
+        : await Stocks.destroy({
+            where: {
+              stock_symbol: symbol,
+              user_id: req.user.id,
+            },
+          });
 
       // update cash
       await User.update(
@@ -71,7 +81,9 @@ const sell = async (req, res) => {
       return res.status(500).json({ error: true, message: err });
     }
   } else {
-    return res.status(400).json({ message: "Insufficient shares!!" });
+    return res
+      .status(400)
+      .json({ error: true, message: "Insufficient shares!!" });
   }
 };
 
