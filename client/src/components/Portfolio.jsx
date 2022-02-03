@@ -20,7 +20,10 @@ const Portfolio = ({ stocksData }) => {
           <tbody>
             {stocksData &&
               stocksData.map((stock, index) => (
-                <tr className={index % 2 == 0 ? "bg-gray-700" : ""}>
+                <tr
+                  className={index % 2 === 0 ? "bg-gray-700" : ""}
+                  key={index}
+                >
                   <td className="px-4 py-5">{stock.stock_symbol}</td>
                   <td className="px-4 py-5">{stock.name}</td>
                   <td className="px-4 py-5">{stock.no_of_shares}</td>

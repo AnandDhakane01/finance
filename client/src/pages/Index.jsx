@@ -8,6 +8,7 @@ import getStocksData from "../services/portfolioService";
 const Index = () => {
   const [stocksData, setStocksData] = useState();
   const [total, setTotal] = useState();
+  const [valueOfShares, setvalueOfShares] = useState();
 
   // get the holdings data
   useEffect(() => {
@@ -25,20 +26,26 @@ const Index = () => {
   // calculate total protfolio value
   useEffect(() => {
     let total = 0;
-    if (stocksData) {
-      stocksData.forEach((stock) => {
+    if (stocksData && stocksData.data) {
+      stocksData.data.forEach((stock) => {
         total += stock.price * stock.no_of_shares;
       });
+
+      setvalueOfShares(parseFloat(total).toFixed(2));
+      setTotal(parseFloat(total + stocksData.cash).toFixed(2));
     }
-    setTotal(parseFloat(total).toFixed(2));
   }, [stocksData]);
 
   return (
     <>
       <NavBar />
       <div className="flex lg:flex-row flex-col justify-center">
-        <IndexMain stocksData={stocksData}></IndexMain>
-        <SideBar total={total}></SideBar>
+        <IndexMain stocksData={stocksData && stocksData.data}></IndexMain>
+        <SideBar
+          total={total}
+          valueOfShares={valueOfShares}
+          stocksData={stocksData}
+        ></SideBar>
       </div>
       <RecentTrade />
     </>

@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function SideBar({ total }) {
+export default function SideBar({ total, stocksData, valueOfShares }) {
   return (
     <div className="h-full lg:w-auto bg-gray-800 lg:rounded-lg p-10 my-5 mr-3 overflow-hidden lg:ml-3">
       <div>
@@ -9,12 +9,14 @@ export default function SideBar({ total }) {
       </div>
       <div className="grid grid-cols-2 gap-10 mt-14">
         <div className="">
-          <p className="uppercase text-gray-500">Liquidity</p>
-          <p className="text-xl">$11000</p>
+          <p className="uppercase text-gray-500">Funds</p>
+          <p className="text-xl">
+            ${stocksData && parseFloat(stocksData.cash).toFixed(2)}
+          </p>
         </div>
         <div className="">
           <p className="uppercase text-gray-500">Value of Shares</p>
-          <p className="text-xl">$11000</p>
+          <p className="text-xl">${valueOfShares}</p>
         </div>
         <div className="">
           <p className="uppercase text-gray-500">Anything</p>
