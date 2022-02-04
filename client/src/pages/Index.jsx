@@ -18,7 +18,6 @@ const Index = () => {
         alert(response.message);
       }
       setStocksData(response);
-      console.log(response);
     };
     getData();
   }, []);

@@ -18,14 +18,14 @@ export default function SideBar({ total, stocksData, valueOfShares }) {
           <p className="uppercase text-gray-500">Value of Shares</p>
           <p className="text-xl">${valueOfShares}</p>
         </div>
-        <div className="">
-          <p className="uppercase text-gray-500">Anything</p>
+        {/* <div className="">
+          <p className="uppercase text-gray-500">Total P&L</p>
           <p className="text-xl">$11000</p>
         </div>
         <div className="">
           <p className="uppercase text-gray-500">Anything</p>
           <p className="text-xl">$11000</p>
-        </div>
+        </div> */}
         {/* <div className="my-4">
                     <p className="uppercase text-gray-500">Anything</p>
                     <p>$11000</p>
