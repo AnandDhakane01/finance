@@ -8,7 +8,7 @@ const indexRouter = require("./routes/index");
 
 const app = express();
 
-app.use(cors("*"));
+app.use(cors("https://finance-client-production.up.railway.app"));
 
 app.use(cookieParser());
 app.use(express.json());
