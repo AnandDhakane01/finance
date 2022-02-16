@@ -16,6 +16,7 @@ const register = async (req, res) => {
     });
     if (alreadyExists) {
       return res
+        .header("Access-Control-Allow-Origin", "*")
         .status(403)
         .json({ message: "Email or Username already exists!!" });
     } else if (confirmPassword != password) {
@@ -59,7 +60,7 @@ const login = async (req, res) => {
         // create a jwt token
         const accessToken = jwt.sign(user.dataValues, process.env.SECRET);
 
-        return res.status(200).send({
+        return res.header("Access-Control-Allow-Origin", "*").status(200).send({
           message: "loggedIn",
           accessToken: accessToken,
           user,
