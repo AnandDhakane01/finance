@@ -15,7 +15,6 @@ const register = async (req, res) => {
       },
     });
     if (alreadyExists) {
-      
       return res
         .status(403)
         .json({ message: "Email or Username already exists!!" });
