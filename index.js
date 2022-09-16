@@ -7,7 +7,7 @@ const indexRouter = require("./routes/index");
 
 const app = express();
 
-app.use(cors({origin: "https://finance-client.herokuapp.com"}));
+app.use(cors());
 
 app.use(cookieParser());
 app.use(express.json());
