@@ -8,12 +8,7 @@ const getStocksData = async (req, res) => {
       (s) => s.dataValues
     );
 
-    let user = (
-      await User.findOne(
-        { attributes: ["userName", "email", "cash"] },
-        { where: { id: req.user.id } }
-      )
-    ).dataValues;
+    let user = (await User.findOne({ where: { id: req.user.id } })).dataValues;
 
     //   get price and name for each stock
     data = await Promise.all(
@@ -29,7 +24,12 @@ const getStocksData = async (req, res) => {
         };
       })
     );
-    return res.status(200).json({ ...user, data });
+    return res.status(200).json({
+      userName: user.userName,
+      email: user.email,
+      cash: user.cash,
+      data,
+    });
   } catch (err) {
     return res.status(500).json({ error: true, message: err });
   }
