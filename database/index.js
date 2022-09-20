@@ -4,10 +4,16 @@ require("dotenv").config();
 let sequelize;
 
 if (process.env.ENVIRONMENT == "development") {
-  sequelize = new Sequelize("stonksdb", "postgres", "asdf12345", {
-    host: "localhost",
-    dialect: "postgres" /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
-  });
+  sequelize = new Sequelize(
+    process.env.DB_NAME,
+    process.env.USERNAME,
+    process.env.PASSWORD,
+    {
+      host: process.env.DB_HOST,
+      dialect:
+        "postgres" /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
+    }
+  );
 } else {
   sequelize = new Sequelize(process.env.POSTGRES_URI);
 }
