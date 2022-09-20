@@ -39,7 +39,9 @@ const register = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: `there was an error: ${err.message}` });
+    res
+      .status(500)
+      .json({ error: true, message: `there was an error: ${err.message}` });
   }
 };
 
@@ -53,25 +55,25 @@ const login = async (req, res) => {
     });
 
     if (user === null) {
-      res.status(401).send("Invalid Credentials");
+      res.status(401).json({ error: true, message: "Invalid Credentials" });
     } else {
       if (await bcrypt.compare(password, user.password)) {
         // create a jwt token
         const accessToken = jwt.sign(user.dataValues, process.env.SECRET);
 
-        return res.status(200).send({
+        return res.status(200).json({
           message: "loggedIn",
           accessToken: accessToken,
           user,
         });
       } else {
-        res.status(400).send("Invalid Credentials!");
+        res.status(400).json({ error: true, message: "Invalid Credentials!" });
       }
     }
   } catch (err) {
     return res
       .status(500)
-      .json({ message: `there was an error: ${err.message}` });
+      .json({ error: true, message: `there was an error: ${err.message}` });
   }
 };
 
