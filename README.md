@@ -1,4 +1,4 @@
-# FINANCE
+# FINANCE - BACKEND
 
 https://finance-client.herokuapp.com
 
