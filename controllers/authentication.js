@@ -46,31 +46,46 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { userName, password } = req.body;
+  const userName = req.body.userName;
+  const password = req.body.password;
+  const google_oauth = req.body.googleUserId ? true : false;
+
   try {
     // find user by userName
     const user = await User.findOne({
       where: { userName: userName },
-      attributes: ["id", "userName", "email", "password"],
+      attributes: ["id", "userName", "email", "password", "googleUserId"],
     });
-
     if (user === null) {
       res.status(401).json({ error: true, message: "Invalid Credentials" });
     } else {
-      if (await bcrypt.compare(password, user.password)) {
+      if (
+        (password && (await bcrypt.compare(password, user.password))) ||
+        google_oauth
+      ) {
         // create a jwt token
         const accessToken = jwt.sign(user.dataValues, process.env.SECRET);
-
-        return res.status(200).json({
+        const resp = {
           message: "loggedIn",
           accessToken: accessToken,
           user,
-        });
+        };
+
+        if (google_oauth) {
+          return resp;
+        }
+        return res.status(200).json(resp);
       } else {
+        if (google_oauth) {
+          return { error: true, message: "Invalid Credentials!" };
+        }
         res.status(400).json({ error: true, message: "Invalid Credentials!" });
       }
     }
   } catch (err) {
+    if (google_oauth) {
+      return { error: true, message: `there was an error: ${err.message}` };
+    }
     return res
       .status(500)
       .json({ error: true, message: `there was an error: ${err.message}` });

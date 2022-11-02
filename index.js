@@ -4,8 +4,13 @@ const logger = require("morgan");
 const cors = require("cors");
 var bodyParser = require("body-parser");
 const indexRouter = require("./routes/index");
+const passport = require("passport");
+require("./google_auth/passport");
 
 const app = express();
+
+
+app.use(passport.initialize());
 
 app.use(cors());
 
