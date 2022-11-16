@@ -8,7 +8,7 @@ passport.use(
     {
       clientID: process.env.OAUTH_CLIENT_ID, // Your Credentials here.
       clientSecret: process.env.OAUTH_CLIENT_SECRET, // Your Credentials here.
-      callbackURL: "http://localhost:5000/google/callback",
+      callbackURL: "https://finance-backnd.herokuapp.com/google/callback",
       passReqToCallback: true,
     },
     async function (request, accessToken, refreshToken, profile, done) {
