@@ -6,8 +6,8 @@ let sequelize;
 if (process.env.ENVIRONMENT == "development") {
   sequelize = new Sequelize(
     process.env.DB_NAME,
-    process.env.USERNAME,
-    process.env.PASSWORD,
+    process.env.DB_USERNAME,
+    process.env.DB_PASSWORD,
     {
       host: process.env.DB_HOST,
       dialect:

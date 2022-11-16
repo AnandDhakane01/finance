@@ -7,6 +7,8 @@ const { sell } = require("../controllers/sell");
 const { sellGet } = require("../controllers/sell");
 const { getStocksData } = require("../controllers/portfolio");
 const loginRequired = require("../middlewares/loginRequired");
+const passport = require("passport");
+require("../google_auth/passport");
 
 /* GET home page. */
 router.get("/", function (req, res) {
@@ -41,4 +43,30 @@ router.post("/sell", loginRequired, sell);
 router.get("/sell", loginRequired, sellGet);
 
 router.get("/stocks", loginRequired, getStocksData);
+
+// google oauth apis
+router.get("/failed", (req, res) => {
+  res.status(400).json({ error: true, message: "Authentication Failed!!" });
+});
+
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["email", "profile"],
+  })
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/failed",
+    session: false,
+  }),
+  function (req, res) {
+    //CLIENT_URL
+    res.cookie("accessToken", req.user.accessToken);
+    res.redirect(process.env.CLIENT_URL)
+  }
+);
+
 module.exports = router;
