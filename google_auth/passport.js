@@ -38,7 +38,6 @@ passport.use(
 
       // create jwt
       const login_resp = await login(request, null, userObj);
-
       return done(null, login_resp);
     }
   )

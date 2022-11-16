@@ -63,7 +63,9 @@ router.get(
     session: false,
   }),
   function (req, res) {
-    res.json(req.user);
+    //CLIENT_URL
+    res.cookie("accessToken", req.user.accessToken);
+    res.redirect(process.env.CLIENT_URL)
   }
 );
 

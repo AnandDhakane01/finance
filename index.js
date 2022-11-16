@@ -12,7 +12,7 @@ const app = express();
 
 app.use(passport.initialize());
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 
 app.use(cookieParser());
 app.use(express.json());
