@@ -18,7 +18,7 @@ if (process.env.ENVIRONMENT == "development") {
   sequelize = new Sequelize(process.env.POSTGRES_URI);
 }
 
-sequelize.sync();
+sequelize.sync({ force: true });
 
 async () => {
   try {
