@@ -15,10 +15,10 @@ if (process.env.ENVIRONMENT == "development") {
     }
   );
 } else {
-  sequelize = new Sequelize(process.env.POSTGRES_URI);
+  sequelize = new Sequelize("postgres://postgres:asdf12345@postgres:5432/stonksdb");
 }
 
-sequelize.sync({ force: true });
+sequelize.sync();
 
 async () => {
   try {

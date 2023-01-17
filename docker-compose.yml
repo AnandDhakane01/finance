@@ -1,0 +1,31 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:latest
+    volumes:
+      - db-data:/data/db
+    environment:
+      POSTGRES_USER:
+      POSTGRES_PASSWORD: 
+      POSTGRES_DB: stonksdb
+    ports: 
+      - "5432:5432"
+
+  backend:
+    build: .
+    ports: 
+      - "5000:5000"
+    depends_on:
+      - postgres 
+
+  client:
+    build: ../finance-client/
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - backend
+
+volumes:
+  db-data:
+    driver: local

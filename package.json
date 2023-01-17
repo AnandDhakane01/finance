@@ -30,7 +30,6 @@
     "node-fetch": "^2.6.7",
     "nodemon": "^2.0.20",
     "passport": "^0.6.0",
-    "passport-google-oauth2": "^0.2.0",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
     "pg-tools": "^0.1.0",
