@@ -1,6 +1,6 @@
 # FINANCE - BACKEND
 
-https://finance-client.herokuapp.com
+https://finance-client-eight.vercel.app/login
 
 A website via which users can "buy" and "sell" stocks.
 
